@@ -54,21 +54,11 @@ constraint = np.array([  [shoulder_min, shoulder_max],
                             [wristr_min,wristr_max],        
                             [gripper_min, gripper_max]  ])
 
-bigarray = np.array([[0, 0, 0, 0, 0]])
-xrange = 43.5
-yrange = 43.5
-
 # Float values 0 to 180
 theta = np.arange(start=0, stop=181, step=1, dtype=int)
 euclidean = np.empty((44,44,3))
- 
-euclidean[0][0] = [1,2, 3]
-
-print (euclidean[0][0])
-# wcoordinates(theta)
 
 
-euclidean = wcoordinates(theta, euclidean)
+wcoordinates(theta, euclidean)
 
-print(myarray)
-print(myarray[0])
+euclidean = rcoordinates()
