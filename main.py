@@ -1,10 +1,12 @@
 #https://circuitdigest.com/microcontroller-projects/arduino-python-tutorial
 #https://pynput.readthedocs.io/en/latest/mouse.html#reference
 
+from os import write
 import numpy as np 
 import coms
 from forward import s3
-
+import os
+from coordinates import wcoordinates, rcoordinates
 
 # Begin Arduino programming via sketch.
 # print("Load Arduino Sketch \"setupsketch.ino\" ? (y/n)")
@@ -53,34 +55,20 @@ constraint = np.array([  [shoulder_min, shoulder_max],
                             [gripper_min, gripper_max]  ])
 
 bigarray = np.array([[0, 0, 0, 0, 0]])
-print(bigarray)
 xrange = 43.5
 yrange = 43.5
 
 # Float values 0 to 180
 theta = np.arange(start=0, stop=181, step=1, dtype=int)
-
-print(theta)
+euclidean = np.empty((44,44,3))
  
-# for x in range(0,1):
-#     for y in range(0,1):
-#         for z in range(0,1):
-#             s = s3(theta[x], theta[y], theta[z])
-#             bigarray = np.append(  bigarray, 
-#                         [[s[0], s[1], theta[x], theta[y], theta[z]]],
-#                         axis=0
-#             )
-#             print(s[0], s[1], theta[x], theta[y], theta[z])
-#             print(bigarray)
+euclidean[0][0] = [1,2, 3]
 
-for x in range(theta.shape[0]):
-    print(x)
-    for y in range(theta.shape[0]):
-        for z in range(theta.shape[0]):
-            s = s3(theta[x], theta[y], theta[z])
-            bigarray = np.append(  bigarray, 
-                        [[s[0], s[1], theta[x], theta[y], theta[z]]],
-                        axis=0
-            )
-            # print(s[0], s[1], theta[x], theta[y], theta[z])
-            # print(bigarray)
+print (euclidean[0][0])
+# wcoordinates(theta)
+
+
+euclidean = wcoordinates(theta, euclidean)
+
+print(myarray)
+print(myarray[0])
