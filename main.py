@@ -56,11 +56,15 @@ constraint = np.array([  [shoulder_min, shoulder_max],
 
 # Float values 0 to 180
 theta = np.arange(start=0, stop=181, step=1, dtype=int)
-euclidean = np.empty((44,44,3))
+euclidean = np.empty((45,45,3))
 
 
 wcoordinates(theta, euclidean)
 
 euclidean = rcoordinates()
 
-print(euclidean)
+for i in euclidean:
+    print(i)
+
+
+print(euclidean[31][13])
