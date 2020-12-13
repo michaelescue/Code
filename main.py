@@ -43,13 +43,13 @@ try:
 except:
     print("\n Unable to connect to serial device.")
 
-base = bytes(90)
-shoulder = bytes(45)
-elbow = bytes(180)
-wrist = bytes(180)
-wrot = bytes(90)
-grip = bytes(10)
-step = bytes(10)
+base = bytearray(90)
+shoulder = bytearray(45)
+elbow = bytearray(180)
+wrist = bytearray(180)
+wrot = bytearray(90)
+grip = bytearray(10)
+step = bytearray(10)
 
 
 # Serial write packet.
@@ -78,12 +78,19 @@ wristr_min = 0
 wristr_max = 180
 gripper_min = 10
 gripper_max = 73
+x_max = 44
+y_max = x_max
+x_min = 0
+y_min = x_min
 
-constraint = np.array([  [shoulder_min, shoulder_max],             
-                            [elbow_min, elbow_max],                 
-                            [wristv_min, wristv_max],           
-                            [wristr_min,wristr_max],        
-                            [gripper_min, gripper_max]  ])
+constraint = np.array([  [shoulder_min, shoulder_max],              #0
+                            [elbow_min, elbow_max],                 #1
+                            [wristv_min, wristv_max],               #2
+                            [wristr_min,wristr_max],                #3
+                            [gripper_min, gripper_max],             #4
+                            [x_min, x_max],                          #5
+                            [y_min, y_max],                         #6
+                            [base_min,base_max]])                   #7
 
 # Float values 0 to 180
 theta = np.arange(start=0, stop=181, step=1, dtype=int)
@@ -91,11 +98,78 @@ euclidean = np.empty((45,45,3))
 
 
 
+x = 0
+y = 44
+
+
 wcoordinates(theta, euclidean)
 
 euclidean = rcoordinates()
 
-def setout(prediction):
+def setout(data_out, prediction, x, y, c):
+    # switcher = {
+    #     1: "0",
+    #     2: "1",
+    #     3: "3",
+    #     4: "4",
+    #     5: "5",
+    #     6: "C",
+    #     7: "Thumb Down",
+    #     8: "Thumb Left",
+    #     9: "Thumb Right",
+    #     10: "Thumb Up"
+    # }
+    base = data_out[1]
+    grip = data_out[6]
+    wrot = data_out[5]
+
+    if(prediction == 10):
+        if( y < c[6][1]):
+            y = y + 1
+            print("y:", y, "\n")
+    elif(prediction == 7):
+        if(y > c[6][0]):
+            y = y - 1
+            print("y:", y, "\n")
+    elif(prediction == 8):
+        if(base < c[7][0]):
+            base = base + 1
+            print("base:", base, "\n")
+    elif(prediction == 9):
+        if(base > c[7][1]):
+            base = base - 1
+            print("base:", base, "\n")
+    elif(prediction == 6):
+        if(grip < c[4][0]):
+            grip = grip + 1
+            print("grip:", grip, "\n")
+    elif(prediction == 5):
+        if(grip > c[4][1]):
+            grip = grip -1
+            print("grip:", grip, "\n")
+    elif(prediction == 0):
+        if(x > c[5][0]):
+            x = x -1
+            print("x:", x, "\n")
+    elif(prediction == 1):
+        if(x < c[5][1]):
+            x = x +1
+            print("x:", x, "\n")
+    elif(prediction == 3):
+        if(wrot < c[3][1]):
+            wrot = wrot +1
+            print("wrot:", wrot, "\n")
+    elif(prediction == 4):
+        if(wrot > c[3][0]):
+            wrot = wrot - 1
+            print("wrot:", wrot, "\n")
+
+
+    data_out = bytearray([step, base, euclidean[x][y][0], euclidean[x][y][1] ,euclidean[x][y][2], wrot, grip])
+    
+    com.write_serial(data_out)
+
+
     
 
 # global variables.widgets.evaluate
@@ -288,7 +362,7 @@ if __name__ == "__main__":
                 # show the thresholded image
                 cv2.imshow("Thesholded", thresholded)
 
-                com.write_serial(data_out)
+                setout(data_out, prediction, x, y, constraint)
 
         # draw the segmented hand
         cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
