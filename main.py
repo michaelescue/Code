@@ -62,3 +62,5 @@ euclidean = np.empty((44,44,3))
 wcoordinates(theta, euclidean)
 
 euclidean = rcoordinates()
+
+print(euclidean)
