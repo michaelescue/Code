@@ -5,7 +5,7 @@ from os import write
 import numpy as np
 from numpy.compat import py3k
 from numpy.lib.arraypad import _set_wrap_both 
-import coms
+import serial
 from forward import s3
 import os
 from coordinates import wcoordinates, rcoordinates
@@ -30,26 +30,44 @@ from Orange import evaluation
 from Orange import preprocess
 from Orange.evaluation import testing
 
-# Begin Arduino programming via sketch.
-# print("Load Arduino Sketch \"setupsketch.ino\" ? (y/n)")
-# keypress = input()
-# if keypress == ord("y"):
-#     print("Loading sketch...")
-#     coms.upload()
+def upload():
+    # Begin Arduino programming via sketch.
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    print("Base Path: " + base_dir)
+    sketch_name = "setupsketch"
+    sketch_path = base_dir + "\\" + sketch_name
+    port = "--port COM5" 
+    command = "--upload"
+    flags = "-v"
+
+    command_string = "arduino" + " "                \
+                    + command + " "                  \
+                        + port + " "                \
+                            + sketch_path + "\\"    \
+                                + flags
+
+    print("Command String: " + command_string)
+    os.system(command_string)
 
 #Initialize serial
 try:
-    com = coms.dueserial()
+    com = serial.Serial('COM5', 9600)
+    keypress = input("Upload Sketch? (y/n)")
+    if(keypress == 'y'):
+        upload()
 except:
     print("\n Unable to connect to serial device.")
 
-base = bytearray(90)
-shoulder = bytearray(45)
-elbow = bytearray(180)
-wrist = bytearray(180)
-wrot = bytearray(90)
-grip = bytearray(10)
-step = bytearray(10)
+
+
+
+base = (90)
+shoulder = (45)
+elbow = (180)
+wrist = (180)
+wrot = (90)
+grip = (10)
+step = (10)
 
 
 # Serial write packet.
@@ -99,7 +117,7 @@ euclidean = np.empty((45,45,3))
 
 
 x = 0
-y = 44
+y = 43
 
 
 wcoordinates(theta, euclidean)
@@ -122,7 +140,8 @@ def setout(data_out, prediction, x, y, c):
     base = data_out[1]
     grip = data_out[6]
     wrot = data_out[5]
-
+    step = data_out[0]
+    
     if(prediction == 10):
         if( y < c[6][1]):
             y = y + 1
@@ -164,11 +183,15 @@ def setout(data_out, prediction, x, y, c):
             wrot = wrot - 1
             print("wrot:", wrot, "\n")
 
+    data_out = [step, base, int(euclidean[x][y][0]), int(euclidean[x][y][1]) ,int(euclidean[x][y][2]), wrot, grip]
 
-    data_out = bytearray([step, base, euclidean[x][y][0], euclidean[x][y][1] ,euclidean[x][y][2], wrot, grip])
+    # print(data_out)
+
+    out_data = bytearray(data_out)
     
-    com.write_serial(data_out)
+    com.write(out_data)
 
+    return data_out
 
     
 
@@ -340,19 +363,19 @@ if __name__ == "__main__":
                 cv2.imwrite(testpath + "\\" + "test.jpg", thresholded)
 
                 #testing timing qualitatively
-                # print("imwrite done")
+                print("imwrite done")
 
                 # Import Test image
                 testdata, err = imimp(testpath)
 
                 #testing timing qualitatively
-                #print("Import done")
+                print("Import done")
 
                 # Embed test image
                 testemb, skippedim, numskippedim = imemb(testdata, col="image")
 
                 #testing timing qualitatively
-                # print("Embed done")
+                print("Embed done")
 
                 # Make prediction using learner
                 prediction = lmodel(testemb)
@@ -362,7 +385,7 @@ if __name__ == "__main__":
                 # show the thresholded image
                 cv2.imshow("Thesholded", thresholded)
 
-                setout(data_out, prediction, x, y, constraint)
+                data_out = setout(data_out, prediction, x, y, constraint)
 
         # draw the segmented hand
         cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
