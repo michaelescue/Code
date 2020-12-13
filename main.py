@@ -51,7 +51,7 @@ def upload():
 
 #Initialize serial
 try:
-    com = serial.Serial('COM5', 9600)
+    com = serial.Serial('COM5', 115200 , timeout=0)
     keypress = input("Upload Sketch? (y/n)")
     if(keypress == 'y'):
         upload()
@@ -137,59 +137,64 @@ def setout(data_out, prediction, x, y, c):
     #     9: "Thumb Right",
     #     10: "Thumb Up"
     # }
+    min = 0
+    max = 1
     base = data_out[1]
     grip = data_out[6]
     wrot = data_out[5]
     step = data_out[0]
     
     if(prediction == 10):
-        if( y < c[6][1]):
+        if( y < c[6][max]):
             y = y + 1
-            print("y:", y, "\n")
+            print("yup:", y, "\n")
     elif(prediction == 7):
-        if(y > c[6][0]):
+        if(y > c[6][min]):
             y = y - 1
-            print("y:", y, "\n")
+            print("ydn:", y, "\n")
     elif(prediction == 8):
-        if(base < c[7][0]):
+        if(base < c[7][max]):
             base = base + 1
-            print("base:", base, "\n")
+            print("baseup:", base, "\n")
     elif(prediction == 9):
-        if(base > c[7][1]):
+        if(base > c[7][min]):
             base = base - 1
-            print("base:", base, "\n")
+            print("basedn:", base, "\n")
     elif(prediction == 6):
-        if(grip < c[4][0]):
+        if(grip < c[4][max]):
             grip = grip + 1
-            print("grip:", grip, "\n")
+            print("gripup:", grip, "\n")
     elif(prediction == 5):
-        if(grip > c[4][1]):
+        if(grip > c[4][min]):
             grip = grip -1
-            print("grip:", grip, "\n")
+            print("gripdn:", grip, "\n")
     elif(prediction == 0):
-        if(x > c[5][0]):
+        if(x > c[5][min]):
             x = x -1
-            print("x:", x, "\n")
+            print("xdn:", x, "\n")
     elif(prediction == 1):
-        if(x < c[5][1]):
+        if(x < c[5][max]):
             x = x +1
-            print("x:", x, "\n")
+            print("xup:", x, "\n")
     elif(prediction == 3):
-        if(wrot < c[3][1]):
+        if(wrot < c[3][max]):
             wrot = wrot +1
-            print("wrot:", wrot, "\n")
+            print("wrotup:", wrot, "\n")
     elif(prediction == 4):
-        if(wrot > c[3][0]):
+        if(wrot > c[3][min]):
             wrot = wrot - 1
-            print("wrot:", wrot, "\n")
+            print("wrotdn:", wrot, "\n")
 
     data_out = [step, base, int(euclidean[x][y][0]), int(euclidean[x][y][1]) ,int(euclidean[x][y][2]), wrot, grip]
 
     # print(data_out)
 
     out_data = bytearray(data_out)
-    
-    com.write(out_data)
+    print(out_data)
+    if(com.out_waiting == 0):
+        print("\n write:", com.write(out_data))
+    if(com.in_waiting >= 7):
+        print("\n read: ", str(com.read()))
 
     return data_out
 
@@ -351,7 +356,7 @@ if __name__ == "__main__":
                 # segmented region
                 (thresholded, segmented) = hand
 
-                #fill Contours
+                #fill Contours  
                 cv2.fillPoly(clone, [segmented + (right, top)], (255, 255, 255))
                 cv2.fillPoly(thresholded, [segmented + (right, top)], (255, 255, 255))
 
@@ -363,19 +368,19 @@ if __name__ == "__main__":
                 cv2.imwrite(testpath + "\\" + "test.jpg", thresholded)
 
                 #testing timing qualitatively
-                print("imwrite done")
+                # print("imwrite done")
 
                 # Import Test image
                 testdata, err = imimp(testpath)
 
                 #testing timing qualitatively
-                print("Import done")
+                # print("Import done")
 
                 # Embed test image
                 testemb, skippedim, numskippedim = imemb(testdata, col="image")
 
                 #testing timing qualitatively
-                print("Embed done")
+                # print("Embed done")
 
                 # Make prediction using learner
                 prediction = lmodel(testemb)
@@ -386,6 +391,7 @@ if __name__ == "__main__":
                 cv2.imshow("Thesholded", thresholded)
 
                 data_out = setout(data_out, prediction, x, y, constraint)
+
 
         # draw the segmented hand
         cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)

@@ -26,7 +26,7 @@ Servo gripper;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600); //initialize serial COM at 9600 baudrate
+  Serial.begin(115200 ); //initialize serial COM at 9600 baudrate
   pinMode(LED_BUILTIN, OUTPUT); //make the LED pin (13) as output
   digitalWrite (LED_BUILTIN, LOW);
   Serial.println("Hi!, I am Arduino");
@@ -46,15 +46,15 @@ char bytes_written = 0;
 void loop() {
   // put your main code here, to run repeatedly:
 
+  int num_read = 0;
   
   if (Serial.available() == 7){
     for(int i = 0; i < 7; i++)
     {
       if((read_buf[i] = Serial.read()) == -1)break;
+      num_read = i;
     }
-   
   }
-
 
   stepdelay = read_buf[0];
   m1 = read_buf[1];
@@ -66,6 +66,10 @@ void loop() {
 
   Braccio.ServoMovement(stepdelay, m1, m2, m3, m4, m5, m6);
 
+  if(Serial.availableForWrite() && (num_read > 0)){
+    Serial.write(read_buf, sizeof(read_buf));
+  }
+  
 //  write_buf[0] = stepdelay;
 //  write_buf[1] = m1;
 //  write_buf[2] = m2;
