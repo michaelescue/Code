@@ -11,24 +11,24 @@ import os
 from coordinates import wcoordinates, rcoordinates
 from cgi import test
 from typing import NoReturn
-from Orange.preprocess import discretize
-from Orange.statistics.distribution import Discrete
-import cv2
-import imutils
+# from Orange.preprocess import discretize
+# from Orange.statistics.distribution import Discrete
+# import cv2
+# import imutils
 import numpy as np
-from Orange.data import domain
-from orangewidget.gui import label
-from sklearn.metrics import pairwise
-from sklearn import linear_model
+# from Orange.data import domain
+# from orangewidget.gui import label
+# from sklearn.metrics import pairwise
+# from sklearn import linear_model
 import os
-import Orange
-from orangecontrib.imageanalytics.image_embedder import ImageEmbedder
-from orangecontrib.imageanalytics.import_images import ImportImages
-from Orange import classification
-from Orange import modelling
-from Orange import evaluation
-from Orange import preprocess
-from Orange.evaluation import testing
+# import Orange
+# from orangecontrib.imageanalytics.image_embedder import ImageEmbedder
+# from orangecontrib.imageanalytics.import_images import ImportImages
+# from Orange import classification
+# from Orange import modelling
+# from Orange import evaluation
+# from Orange import preprocess
+# from Orange.evaluation import testing
 
 def upload():
     # Begin Arduino programming via sketch.
