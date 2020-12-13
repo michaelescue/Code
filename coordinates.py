@@ -30,3 +30,5 @@ def rcoordinates():
     print(path)
 
     return np.load(path)
+
+
