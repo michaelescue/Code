@@ -1,5 +1,5 @@
 # Gesture Recognition
-
+# Modified by Michael Escue
 Recognizing "Hand Gestures" using OpenCV and Python.
 
 #### Libraries needed

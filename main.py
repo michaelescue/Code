@@ -11,24 +11,24 @@ import os
 from coordinates import wcoordinates, rcoordinates
 from cgi import test
 from typing import NoReturn
-# from Orange.preprocess import discretize
-# from Orange.statistics.distribution import Discrete
-# import cv2
-# import imutils
+from Orange.preprocess import discretize
+from Orange.statistics.distribution import Discrete
+import cv2
+import imutils
 import numpy as np
-# from Orange.data import domain
-# from orangewidget.gui import label
-# from sklearn.metrics import pairwise
-# from sklearn import linear_model
+from Orange.data import domain
+from orangewidget.gui import label
+from sklearn.metrics import pairwise
+from sklearn import linear_model
 import os
-# import Orange
-# from orangecontrib.imageanalytics.image_embedder import ImageEmbedder
-# from orangecontrib.imageanalytics.import_images import ImportImages
-# from Orange import classification
-# from Orange import modelling
-# from Orange import evaluation
-# from Orange import preprocess
-# from Orange.evaluation import testing
+import Orange
+from orangecontrib.imageanalytics.image_embedder import ImageEmbedder
+from orangecontrib.imageanalytics.import_images import ImportImages
+from Orange import classification
+from Orange import modelling
+from Orange import evaluation
+from Orange import preprocess
+from Orange.evaluation import testing
 
 def upload():
     # Begin Arduino programming via sketch.
@@ -143,10 +143,14 @@ def setout(data_out, prediction, x, y, c):
     grip = data_out[6]
     wrot = data_out[5]
     step = data_out[0]
+
+    scalar = 5
     
     if(prediction == 10):
         if( y < c[6][max]):
             y = y + 1
+            while (((x*x) + (y*y)) > 1936):
+                x = x -1
             print("yup:", y, "\n")
     elif(prediction == 7):
         if(y > c[6][min]):
@@ -154,48 +158,53 @@ def setout(data_out, prediction, x, y, c):
             print("ydn:", y, "\n")
     elif(prediction == 8):
         if(base < c[7][max]):
-            base = base + 1
+            base = base + 10
             print("baseup:", base, "\n")
     elif(prediction == 9):
         if(base > c[7][min]):
-            base = base - 1
+            base = base - 10
             print("basedn:", base, "\n")
     elif(prediction == 6):
         if(grip < c[4][max]):
-            grip = grip + 1
+            grip = grip + 10
             print("gripup:", grip, "\n")
     elif(prediction == 5):
         if(grip > c[4][min]):
-            grip = grip -1
+            grip = grip - 10
             print("gripdn:", grip, "\n")
     elif(prediction == 0):
         if(x > c[5][min]):
-            x = x -1
+            x = x -5
+            while (((x*x) + (y*y)) > 1936):
+                y = y -1
             print("xdn:", x, "\n")
     elif(prediction == 1):
         if(x < c[5][max]):
-            x = x +1
+            x = x + 5
+            while (((x*x) + (y*y)) > 1936):
+                y = y -1
             print("xup:", x, "\n")
     elif(prediction == 3):
         if(wrot < c[3][max]):
-            wrot = wrot +1
+            wrot = wrot + 10
             print("wrotup:", wrot, "\n")
     elif(prediction == 4):
         if(wrot > c[3][min]):
-            wrot = wrot - 1
+            wrot = wrot - 10
             print("wrotdn:", wrot, "\n")
 
-    data_out = [step, base, int(euclidean[x][y][0]), int(euclidean[x][y][1]) ,int(euclidean[x][y][2]), wrot, grip]
-
-    # print(data_out)
-
-    out_data = bytearray(data_out)
-    print(out_data)
-    if(com.out_waiting == 0):
-        print("\n write:", com.write(out_data))
-    if(com.in_waiting >= 7):
-        print("\n read: ", str(com.read()))
-
+    if (data_out != [step, base, int(euclidean[x][y][0]), int(euclidean[x][y][1]) ,int(euclidean[x][y][2]), wrot, grip]):
+        out_data = bytearray(data_out)
+        if(com.out_waiting == 0):
+            # print("WriteData:")
+            # for i in out_data:
+                # print(i)
+            com.write(out_data)
+    if(com.in_waiting):
+        read = com.read(com.in_waiting)
+        # print("Read:")
+        # for i in read:
+            # print(i)
     return data_out
 
     
@@ -364,8 +373,9 @@ if __name__ == "__main__":
                 cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
                 cv2.drawContours(thresholded, [segmented + (right, top)], -1, (0, 0, 255))
 
+
                 # save segmented frame to testpath
-                cv2.imwrite(testpath + "\\" + "test.jpg", thresholded)
+                cv2.imwrite(testpath + "\\" + "test.tif", thresholded)
 
                 #testing timing qualitatively
                 # print("imwrite done")

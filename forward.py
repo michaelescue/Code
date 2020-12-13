@@ -67,18 +67,18 @@ def s1(theta0, theta1, theta2):
 
 # Rotation around the Z axis using thetai
 def rotz(n, theta):
-    rotz = np.array([       [cos(theta[n]), -sin(theta[n]), 0,  0],
-                            [sin(theta[n]), cos(theta[n]),  0,  0],
+    rotz = np.array([       [cos(theta[n]), -sin(theta[n]),     0,  0],
+                            [sin(theta[n]), cos(theta[n]),      0,  0],
                             [0,               0,                1,  0],
                             [0,               0,                0,  1]  ])
     return rotz
 
 # Translation on the x axis using ai
 def transx(n, theta):
-    transx = np.array([     [1, 0,  0,      a[n]],
-                            [0, 1,  0,      0],
-                            [0, 0,  1,      0],
-                            [0, 0,  0,      1]  ])    
+    transx = np.array([     [1,     0,  0,      a[n]],
+                            [0,     1,  0,      0],
+                            [0,     0,  1,      0],
+                            [0,     0,  0,      1]  ])    
     return transx
 
 

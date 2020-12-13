@@ -20,10 +20,15 @@ Servo gripper;
 #define wristr_max 180
 #define gripper_min 10
 #define gripper_max 73
-#define WRITE_BYTES 7
-#define READ_BYTES WRITE_BYTES
+#define BYTES 1024
 #define ZERO_ON_EXIT 0
 
+unsigned char m[7] = {10, 90, 45, 180, 180, 90, 10};
+unsigned char stepdelay = 10;
+unsigned char read_buf[BYTES] = {10, 90, 45, 180 ,180, 90, 10};
+unsigned char nbytes = 0;
+unsigned char i = 0;
+  
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200 ); //initialize serial COM at 9600 baudrate
@@ -32,62 +37,25 @@ void setup() {
   Serial.println("Hi!, I am Arduino");
   Braccio.begin();
 }
-unsigned char m1 = 90;   // Base
-unsigned char m2 = 45;   // Shoulder
-unsigned char m3 = 180;  // Elbow
-unsigned char m4 = 180;  // WristV
-unsigned char m5 = 90;   // WristR
-unsigned char m6 = 10;   // Grabber
-unsigned char stepdelay = 10;
-//unsigned char write_buf[WRITE_BYTES] = {0};
-unsigned char read_buf[WRITE_BYTES] = {10, 90, 45, 180 ,180, 90, 10};
-char bytes_written = 0;
  
 void loop() {
   // put your main code here, to run repeatedly:
-
-  int num_read = 0;
   
-  if (Serial.available() == 7){
-    for(int i = 0; i < 7; i++)
-    {
-      if((read_buf[i] = Serial.read()) == -1)break;
-      num_read = i;
-    }
+  while (Serial.available()){
+    if((read_buf[nbytes] = Serial.read()) != 0) nbytes++;
+     }
+
+  while ( i < nbytes){
+     m[i] = read_buf[i];
+     i++;
   }
 
-  stepdelay = read_buf[0];
-  m1 = read_buf[1];
-  m2 = read_buf[2];
-  m3 = read_buf[3];
-  m4 = read_buf[4];
-  m5 = read_buf[5];
-  m6 = read_buf[6];
+  Braccio.ServoMovement(m[0], m[1], m[2], m[3], m[4], m[5], m[6]);
 
-  Braccio.ServoMovement(stepdelay, m1, m2, m3, m4, m5, m6);
-
-  if(Serial.availableForWrite() && (num_read > 0)){
-    Serial.write(read_buf, sizeof(read_buf));
+  if( Serial.availableForWrite()>= sizeof(m) ){
+    Serial.write(m, sizeof(m));
   }
-  
-//  write_buf[0] = stepdelay;
-//  write_buf[1] = m1;
-//  write_buf[2] = m2;
-//  write_buf[3] = m3;
-//  write_buf[4] = m4;
-//  write_buf[5] = m5;
-//  write_buf[6] = m6;
-//  
-//  
-//  if(Serial.availableForWrite() > WRITE_BYTES){
-//    do{
-//      bytes_written += Serial.write(write_buf, WRITE_BYTES);
-//    }while(bytes_written < WRITE_BYTES);
-//
-//    bytes_written = ZERO_ON_EXIT;
-//  }
-//  
-  
+   
   
   
 }
