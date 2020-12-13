@@ -1,10 +1,24 @@
 #https://circuitdigest.com/microcontroller-projects/arduino-python-tutorial
 #https://pynput.readthedocs.io/en/latest/mouse.html#reference
 
+from deap.tools.support import HallOfFame
+from numpy.core.defchararray import add, array, multiply
+from numpy.core.function_base import linspace
+from numpy.core.numeric import full
 import numpy as np 
 import coms
-from forward import s3
-
+from forward import s3,s2,s1
+import math
+from math import exp, radians as rad, sqrt
+from math import degrees as deg
+from deap import creator
+from deap import gp 
+from deap import base
+from deap import tools
+from deap import algorithms
+import operator
+import random
+import operator
 
 # Begin Arduino programming via sketch.
 # print("Load Arduino Sketch \"setupsketch.ino\" ? (y/n)")
@@ -52,35 +66,26 @@ constraint = np.array([  [shoulder_min, shoulder_max],
                             [wristr_min,wristr_max],        
                             [gripper_min, gripper_max]  ])
 
-bigarray = np.array([[0, 0, 0, 0, 0]])
-print(bigarray)
-xrange = 43.5
-yrange = 43.5
-
-# Float values 0 to 180
-theta = np.arange(start=0, stop=181, step=1, dtype=int)
-
-print(theta)
- 
-# for x in range(0,1):
-#     for y in range(0,1):
-#         for z in range(0,1):
-#             s = s3(theta[x], theta[y], theta[z])
-#             bigarray = np.append(  bigarray, 
-#                         [[s[0], s[1], theta[x], theta[y], theta[z]]],
-#                         axis=0
-#             )
-#             print(s[0], s[1], theta[x], theta[y], theta[z])
-#             print(bigarray)
+theta = np.zeros((np.linspace(0,180,10).shape[0], 3), dtype=float)
+oneeighty = np.linspace(0, 180, 10)
 
 for x in range(theta.shape[0]):
-    print(x)
-    for y in range(theta.shape[0]):
-        for z in range(theta.shape[0]):
-            s = s3(theta[x], theta[y], theta[z])
-            bigarray = np.append(  bigarray, 
-                        [[s[0], s[1], theta[x], theta[y], theta[z]]],
-                        axis=0
-            )
-            # print(s[0], s[1], theta[x], theta[y], theta[z])
-            # print(bigarray)
+    for y in range(theta.shape[1]):
+        theta[x][theta.shape[1]-1] = oneeighty[x]
+        theta[x][theta.shape[1]-2] = oneeighty[theta.shape[0]-x-1]
+        theta[x][theta.shape[1]-3] = oneeighty[x]
+
+print(theta)
+
+# Extract single dimension values for x y values from transform
+s3 = np.array([s3(theta[i][0], theta[i][1],theta[i][2]) for i in range(theta.shape[0])])
+s2 = np.array([s2(theta[i][0], theta[i][1],theta[i][2]) for i in range(theta.shape[0])])
+s1 = np.array([s1(theta[i][0], theta[i][1],theta[i][2]) for i in range(theta.shape[0])])
+
+s = np.array([s1, s2, s3])
+
+# Transform degrees to radians    
+for i in range(theta.shape[0]):
+    for j in range(theta.shape[1]):
+        theta[i][j] = rad(theta[i][j])
+
